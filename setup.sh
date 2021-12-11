@@ -23,3 +23,8 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 docker-compose --version
 #check output
+
+mkdir ~/docker
+
+sudo setfacl -Rdm g:docker:rwx ~/docker
+sudo chmod -R 775 ~/docker

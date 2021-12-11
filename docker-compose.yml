@@ -1,5 +1,7 @@
 version: "3.9"
 
+# master template https://github.com/htpcBeginner/docker-traefik/blob/master/docker-compose-t2.yml
+
 networks:
   t2_proxy:
     name: t2_proxy
@@ -165,3 +167,51 @@ services:
     secrets:
       - plex_claim    
   
+  # TransmissionBT - Torrent Downloader
+  # https://haugene.github.io/docker-transmission-openvpn/supported-providers/
+  transmission-vpn:
+    image: haugene/transmission-openvpn:latest
+    container_name: transmission-vpn
+    restart: always
+    networks:
+      t2_proxy:
+        ipv4_address: 192.168.90.169
+    # ports:
+    #  - "$TRANSMISSION_PORT:9091"
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - $DOCKERDIR/appdata/transmission-vpn/data:/data
+      - $DOCKERDIR/appdata/transmission-vpn/config:/config
+      - $DATADIR/downloads:/data/downloads
+    environment:
+      OPENVPN_PROVIDER: BTGUARD
+      OPENVPN_USERNAME: $BTGUARD_USERNAME
+      OPENVPN_PASSWORD: $BTGUARD_PASSWORD
+      #OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60
+      LOCAL_NETWORK: "$LOCAL_NETWORK"
+      PUID: $PUID
+      PGID: $PGID
+      TZ: $TZ
+      UMASK_SET: 2
+      TRANSMISSION_RPC_AUTHENTICATION_REQUIRED: "true"
+      TRANSMISSION_RPC_HOST_WHITELIST: "127.0.0.1,$SERVER_IP"
+      TRANSMISSION_RPC_PASSWORD: $TRANSMISSION_RPC_PASSWORD
+      TRANSMISSION_RPC_USERNAME: $TRANSMISSION_RPC_USERNAME
+      TRANSMISSION_UMASK: 002
+      TRANSMISSION_RATIO_LIMIT: 0.01
+      TRANSMISSION_RATIO_LIMIT_ENABLED: "true"
+      TRANSMISSION_ALT_SPEED_DOWN: 40000
+      TRANSMISSION_ALT_SPEED_ENABLED: "false"
+      TRANSMISSION_ALT_SPEED_UP: 250
+      TRANSMISSION_SPEED_LIMIT_DOWN: 80000
+      TRANSMISSION_SPEED_LIMIT_DOWN_ENABLED: "true"
+      TRANSMISSION_SPEED_LIMIT_UP: 500
+      TRANSMISSION_SPEED_LIMIT_UP_ENABLED: "true"
+      TRANSMISSION_INCOMPLETE_DIR: /data/downloads/torrents/incomplete
+      TRANSMISSION_INCOMPLETE_DIR_ENABLED: "true"
+      TRANSMISSION_WATCH_DIR: /data/downloads/torrents
+      TRANSMISSION_WATCH_DIR_ENABLED: "true"
+      TRANSMISSION_DOWNLOAD_DIR: /data/downloads/torrents
+      LOG_TO_STDOUT: "true"
